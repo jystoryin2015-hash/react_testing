@@ -22,7 +22,7 @@ export async function onRequestPost(context: PagesFunctionRequest) {
           {
             role: 'system',
             content: `You are a professional food translator. 
-            Your task is to translate the provided food description into the target language.
+            Your task is to translate the provided food description into ${targetLang}.
 
             RULES:
             - Output ONLY the translated text.
@@ -35,15 +35,14 @@ export async function onRequestPost(context: PagesFunctionRequest) {
             Assistant: "美味しい辛口のキムチチゲ"
 
             User: "Sweet and creamy vanilla ice cream" (Target: French)
-            Assistant: "Glace à la vanille douce et crémeuse"
-
-            User: "Pasta with tomato sauce" (Target: English)
-            Assistant: "Pasta with tomato sauce"`,
+            Assistant: "Glace à la vanille douce et crémeuse"`,
           },
           {
             role: 'user',
-            content: text,
+            content: `Translate the following text into ${targetLang}: ${text}`,
           },
+        ],
+
         ],
         temperature: 0.7,
       }),
