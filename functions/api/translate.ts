@@ -9,7 +9,7 @@ export async function onRequestPost(context: PagesFunctionRequest) {
       });
     }
 
-    // OpenAI API 호출
+    // OpenAI API 호출 (gpt-4o 사용)
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -17,25 +17,26 @@ export async function onRequestPost(context: PagesFunctionRequest) {
         'Authorization': `Bearer ${context.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4o', 
         messages: [
           {
             role: 'system',
-            content: `You are a professional food translator. 
-            Your task is to translate the provided food description from ${sourceLang} to ${targetLang}.
+            content: `You are an elite culinary expert and a native-level translator specializing in food culture.
+            Your mission is to translate food descriptions from ${sourceLang} to ${targetLang} with extreme precision and sensory richness.
 
-            RULES:
-            - Output ONLY the translated text.
-            - NEVER include the original text.
-            - NEVER include any explanations, intros, or remarks.
-            - Use natural, appetizing, and culturally authentic phrasing.
+            STRICT GUIDELINES:
+            1. SENSORY DETAIL: Do not just translate words. Capture the texture (crunchy, silky, tender), aroma (fragrant, smoky), and complex flavor profiles (savory, umami, tangy) in the target language.
+            2. CULINARY AUTHENTICITY: Use authentic culinary terminology that a local food critic or chef would use. Avoid "dictionary-style" translations.
+            3. CULTURAL NUANCE: Adapt the tone to suit local food culture. (e.g., if translating to Japanese, use appropriate polite or appetizing descriptors).
+            4. OUTPUT FORMAT: Return ONLY the final translated text. 
+            5. NO EXTRA TEXT: Absolutely no original text, no "Here is the translation:", no explanations, and no commentary.
 
             EXAMPLES:
-            User: "Delicious spicy kimchi stew" (Source: English, Target: Japanese)
-            Assistant: "美味しい辛口のキムチチゲ"
+            User: "Crispy, golden-brown fried chicken with a spicy kick" (Source: English, Target: Japanese)
+            Assistant: "外はカリッと、中はジューシーで、ピリ辛な味わいの黄金色フライドチキン"
 
-            User: "Sweet and creamy vanilla ice cream" (Source: English, Target: French)
-            Assistant: "Glace à la vanille douce et crémeuse"`,
+            User: "Velvety smooth chocolate mousse with a hint of sea salt" (Source: English, Target: French)
+            Assistant: "Mousse au chocolat d'une texture veloutée, relevée d'une pointe de fleur de sel"`,
           },
           {
             role: 'user',
