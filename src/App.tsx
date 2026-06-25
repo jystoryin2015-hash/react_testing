@@ -11,15 +11,23 @@ const LANGUAGES = [
   { code: 'de', name: 'German' },
 ];
 
-// Mock translation function to simulate API behavior
-const mockTranslate = async (text: string, targetLang: string): Promise<string> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      // Simple mock: just prepends the language name
-      const langName = LANGUAGES.find(l => l.code === targetLang)?.name || '';
-      resolve(`[${langName} Translation] ${text}`);
-    }, 1500);
+// Real translation function calling the Cloudflare Function API
+const translateWithAPI = async (text: string, targetLang: string): Promise<string> => {
+  const response = await fetch('/api/translate', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ text, targetLang }),
   });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Translation failed');
+  }
+
+  const data = await response.json();
+  return data.translatedText;
 };
 
 function App() {
@@ -56,11 +64,11 @@ function App() {
     setResult(null);
 
     try {
-      const translatedText = await mockTranslate(description, targetLang);
+      const translatedText = await translateWithAPI(description, targetLang);
       setResult(translatedText);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Translation failed', error);
-      setResult('Error during translation. Please try again.');
+      setResult(`Error: ${error.message}`);
     } finally {
       setIsTranslating(false);
     }
