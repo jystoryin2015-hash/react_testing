@@ -1,89 +1,172 @@
-import { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import './App.css';
 
-export default function App() {
-  const [count, setCount] = useState(0);
-  const [text, setText] = useState('');
+const LANGUAGES = [
+  { code: 'en', name: 'English' },
+  { code: 'ja', name: 'Japanese' },
+  { code: 'zh', name: 'Chinese' },
+  { code: 'ko', name: 'Korean' },
+  { code: 'fr', name: 'French' },
+  { code: 'es', name: 'Spanish' },
+  { code: 'de', name: 'German' },
+];
+
+// Mock translation function to simulate API behavior
+const mockTranslate = async (text: string, targetLang: string): Promise<string> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      // Simple mock: just prepends the language name
+      const langName = LANGUAGES.find(l => l.code === targetLang)?.name || '';
+      resolve(`[${langName} Translation] ${text}`);
+    }, 1500);
+  });
+};
+
+function App() {
+  const [image, setImage] = useState<string | null>(null);
+  const [description, setDescription] = useState('');
+  const [targetLang, setTargetLang] = useState('en');
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [result, setResult] = useState<string | null>(null);
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setImage(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleTranslate = async () => {
+    if (!description.trim()) return;
+
+    setIsTranslating(true);
+    setResult(null);
+
+    try {
+      const translatedText = await mockTranslate(description, targetLang);
+      setResult(translatedText);
+    } catch (error) {
+      console.error('Translation failed', error);
+      setResult('Error during translation. Please try again.');
+    } finally {
+      setIsTranslating(false);
+    }
+  };
 
   return (
-    <div style={{
-      fontFamily: 'system-ui, sans-serif',
-      maxWidth: '600px',
-      margin: '40px auto',
-      padding: '20px',
-      borderRadius: '8px',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      backgroundColor: '#f9f9f9',
-      color: '#333'
-    }}>
+    <div className="app-container">
       <header>
-        <h1 style={{ color: '#0070f3', marginBottom: '10px' }}>React Testing Sandbox</h1>
-        <p style={{ color: '#666', fontSize: '1.1rem' }}>
-          A minimal React + Vite + TypeScript starter with Vitest and Testing Library.
-        </p>
+        <h1>Foodie Translate</h1>
+        <p>Snap, Describe, and Translate</p>
       </header>
 
-      <main style={{ marginTop: '30px' }}>
-        <section style={{ marginBottom: '30px' }}>
-          <h2>Counter</h2>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-            <button
-              onClick={() => setCount(prev => prev - 1)}
-              style={{
-                padding: '8px 16px',
-                fontSize: '1rem',
-                cursor: 'pointer',
-                borderRadius: '4px',
-                border: '1px solid #ccc',
-                backgroundColor: '#fff'
-              }}
-              aria-label="decrement"
-            >
-              -
-            </button>
-            <span data-testid="counter-value" style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
-              {count}
-            </span>
-            <button
-              onClick={() => setCount(prev => prev + 1)}
-              style={{
-                padding: '8px 16px',
-                fontSize: '1rem',
-                cursor: 'pointer',
-                borderRadius: '4px',
-                border: '1px solid #0070f3',
-                backgroundColor: '#0070f3',
-                color: '#fff'
-              }}
-              aria-label="increment"
-            >
-              +
-            </button>
+      <main>
+        <div className="card">
+          <h2 className="section-title">
+            <span role="img" aria-label="camera">📸</span> 1. Upload Food Photo
+          </h2>
+          
+          <div 
+            className="upload-area" 
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {image ? (
+              <>
+                <img src={image} alt="Food preview" className="image-preview" />
+                <button className="remove-btn" onClick={(e) => {
+                  e.stopPropagation();
+                  removeImage();
+                }}>
+                  Remove
+                </button>
+              </>
+            ) : (
+              <div className="upload-placeholder">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
+                </svg>
+                <p>Tap to upload or drag a photo</p>
+              </div>
+            )}
+            <input 
+              type="file" 
+              ref={fileInputRef}
+              onChange={handleImageUpload} 
+              accept="image/*" 
+              style={{ display: 'none' }} 
+            />
           </div>
-        </section>
+        </div>
 
-        <section style={{ marginBottom: '20px' }}>
-          <h2>Interactive Input</h2>
-          <input
-            type="text"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder="Type something here..."
-            style={{
-              width: '100%',
-              padding: '10px',
-              fontSize: '1rem',
-              borderRadius: '4px',
-              border: '1px solid #ccc',
-              boxSizing: 'border-box'
-            }}
-          />
-          {text && (
-            <p style={{ marginTop: '10px', fontSize: '1rem' }}>
-              You typed: <strong data-testid="typed-text">{text}</strong>
-            </p>
-          )}
-        </section>
+        <div className="card">
+          <h2 className="section-title">
+            <span role="img" aria-label="edit">✍️</span> 2. Describe the Food
+          </h2>
+          
+          <div className="input-group">
+            <label className="label">Description</label>
+            <textarea 
+              placeholder="e.g., This delicious pasta has a rich tomato sauce and fresh basil..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
+
+          <div className="input-group">
+            <label className="label">Translate to</label>
+            <select 
+              value={targetLang} 
+              onChange={(e) => setTargetLang(e.target.value)}
+            >
+              {LANGUAGES.map((lang) => (
+                <option key={lang.code} value={lang.code}>
+                  {lang.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <button 
+            className="translate-btn" 
+            onClick={handleTranslate}
+            disabled={isTranslating || !description.trim()}
+          >
+            {isTranslating ? (
+              <>
+                <span className="spinner"></span>
+                Translating...
+              </>
+            ) : (
+              'Translate Now'
+            )}
+          </button>
+        </div>
+
+        {result && (
+          <div className="card result-card">
+            <h2 className="section-title">
+              <span role="img" aria-label="sparkles">✨</span> Translation Result
+            </h2>
+            <p className="translated-text">{result}</p>
+          </div>
+        )}
       </main>
     </div>
   );
 }
+
+export default App;
