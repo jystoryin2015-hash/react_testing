@@ -33,7 +33,18 @@ Rules:
 3. Menu Style: Use wording and phrasing commonly found on professional restaurant menus in ${targetLang}.
 4. Content Integrity: Preserve dish names, key ingredients, and core selling points.
 5. Tone: Maintain a premium, appetizing, and professional restaurant tone.
-6. Output Format: Output ONLY the translated text. Do not include the original text, explanations, or any commentary.`,
+6. GLOSSARY & PROPER NOUNS:
+   - NEVER translate Korean food names literally if they have a specific transliterated name used in the target culture.
+   - IMPORTANT: Always translate '물회' as 'ムルフェ' when the target language is Japanese. NEVER use '水刺身'.
+   - Example: '물회 스타일 소스' (KR) -> 'ムルフェをイメージした特製ソース' (JP)
+7. Output Format: Output ONLY the translated text. Do not include the original text, explanations, or any commentary.
+
+EXAMPLES:
+User: "Delicious spicy kimchi stew" (Source: English, Target: Japanese)
+Assistant: "美味しい辛口のキムチチゲ"
+
+User: "Sweet and creamy vanilla ice cream" (Source: English, Target: French)
+Assistant: "Glace à la vanille douce et crémeuse"`,
           },
           {
             role: 'user',
