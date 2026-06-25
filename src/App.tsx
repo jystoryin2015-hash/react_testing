@@ -12,13 +12,13 @@ const LANGUAGES = [
 ];
 
 // Real translation function calling the Cloudflare Function API
-const translateWithAPI = async (text: string, targetLang: string): Promise<string> => {
+const translateWithAPI = async (text: string, targetLangName: string): Promise<string> => {
   const response = await fetch('/api/translate', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ text, targetLang }),
+    body: JSON.stringify({ text, targetLang: targetLangName }),
   });
 
   if (!response.ok) {
@@ -63,8 +63,11 @@ function App() {
     setIsTranslating(true);
     setResult(null);
 
+    // Get the full language name from the code
+    const selectedLang = LANGUAGES.find(l => l.code === targetLang)?.name || 'English';
+
     try {
-      const translatedText = await translateWithAPI(description, targetLang);
+      const translatedText = await translateWithAPI(description, selectedLang);
       setResult(translatedText);
     } catch (error: any) {
       console.error('Translation failed', error);
