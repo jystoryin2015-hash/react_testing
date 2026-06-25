@@ -25,17 +25,17 @@ export async function onRequestPost(context: PagesFunctionRequest) {
             Your goal is to translate the provided food description into ${targetLang}. 
 
             CRITICAL INSTRUCTIONS:
-            1. Capture local expressions and nuances: Do not provide a literal, word-for-word translation.
-            2. Cultural Context: Use terms and phrasing that a native speaker of ${targetLang} would naturally use when describing food.
-            3. Appetite Appeal: Ensure the tone remains appetizing and evokes the sensory experience of the food.
-            4. Local Authenticity: If there are specific cultural ways to describe this food in ${targetLang}, use them.`,
+            1. Return ONLY the translated text. Do not include the original text, explanations, or any other commentary.
+            2. Capture local expressions and nuances: Do not provide a literal, word-for-word translation.
+            3. Cultural Context: Use terms and phrasing that a native speaker of ${targetLang} would naturally use when describing food.
+            4. Appetite Appeal: Ensure the tone remains appetizing and evokes the sensory experience of the food.
+            5. Local Authenticity: If there are specific cultural ways to describe this food in ${targetLang}, use them.`,
           },
           {
             role: 'user',
             content: text,
           },
         ],
-
         temperature: 0.7,
       }),
     });
