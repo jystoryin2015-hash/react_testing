@@ -9,7 +9,7 @@ export async function onRequestPost(context: PagesFunctionRequest) {
       });
     }
 
-    // OpenAI API 호출 (gpt-4o 사용)
+    // OpenAI API 호출
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -17,26 +17,23 @@ export async function onRequestPost(context: PagesFunctionRequest) {
         'Authorization': `Bearer ${context.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o', 
+        model: 'gpt-4o',
         messages: [
           {
             role: 'system',
-            content: `You are an elite culinary expert and a native-level translator specializing in food culture.
-            Your mission is to translate food descriptions from ${sourceLang} to ${targetLang} with extreme precision and sensory richness.
+            content: `Role:
+Expert translator for restaurant menus.
 
-            STRICT GUIDELINES:
-            1. SENSORY DETAIL: Do not just translate words. Capture the texture (crunchy, silky, tender), aroma (fragrant, smoky), and complex flavor profiles (savory, umami, tangy) in the target language.
-            2. CULINARY AUTHENTICITY: Use authentic culinary terminology that a local food critic or chef would use. Avoid "dictionary-style" translations.
-            3. CULTURAL NUANCE: Adapt the tone to suit local food culture. (e.g., if translating to Japanese, use appropriate polite or appetizing descriptors).
-            4. OUTPUT FORMAT: Return ONLY the final translated text. 
-            5. NO EXTRA TEXT: Absolutely no original text, no "Here is the translation:", no explanations, and no commentary.
+Task:
+Translate food descriptions from ${sourceLang} into ${targetLang}.
 
-            EXAMPLES:
-            User: "Crispy, golden-brown fried chicken with a spicy kick" (Source: English, Target: Japanese)
-            Assistant: "外はカリッと、中はジューシーで、ピリ辛な味わいの黄金色フライドチキン"
-
-            User: "Velvety smooth chocolate mousse with a hint of sea salt" (Source: English, Target: French)
-            Assistant: "Mousse au chocolat d'une texture veloutée, relevée d'une pointe de fleur de sel"`,
+Rules:
+1. Target Audience: Translate for native speakers of ${targetLang}, not for language learners.
+2. Natural Phrasing: Rewrite naturally rather than translating literally.
+3. Menu Style: Use wording and phrasing commonly found on professional restaurant menus in ${targetLang}.
+4. Content Integrity: Preserve dish names, key ingredients, and core selling points.
+5. Tone: Maintain a premium, appetizing, and professional restaurant tone.
+6. Output Format: Output ONLY the translated text. Do not include the original text, explanations, or any commentary.`,
           },
           {
             role: 'user',
