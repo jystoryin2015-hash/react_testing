@@ -1,9 +1,9 @@
 export async function onRequestPost(context: PagesFunctionRequest) {
   try {
-    const { text, targetLang } = await context.request.json();
+    const { text, sourceLang, targetLang } = await context.request.json();
 
-    if (!text || !targetLang) {
-      return new Response(JSON.stringify({ error: 'Missing text or targetLang' }), {
+    if (!text || !sourceLang || !targetLang) {
+      return new Response(JSON.stringify({ error: 'Missing text, sourceLang, or targetLang' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -17,12 +17,12 @@ export async function onRequestPost(context: PagesFunctionRequest) {
         'Authorization': `Bearer ${context.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo', // 또는 'gpt-4'
+        model: 'gpt-3.5-turbo',
         messages: [
           {
             role: 'system',
             content: `You are a professional food translator. 
-            Your task is to translate the provided food description into ${targetLang}.
+            Your task is to translate the provided food description from ${sourceLang} to ${targetLang}.
 
             RULES:
             - Output ONLY the translated text.
@@ -31,18 +31,16 @@ export async function onRequestPost(context: PagesFunctionRequest) {
             - Use natural, appetizing, and culturally authentic phrasing.
 
             EXAMPLES:
-            User: "Delicious spicy kimchi stew" (Target: Japanese)
+            User: "Delicious spicy kimchi stew" (Source: English, Target: Japanese)
             Assistant: "美味しい辛口のキムチチゲ"
 
-            User: "Sweet and creamy vanilla ice cream" (Target: French)
+            User: "Sweet and creamy vanilla ice cream" (Source: English, Target: French)
             Assistant: "Glace à la vanille douce et crémeuse"`,
           },
           {
             role: 'user',
-            content: `Translate the following text into ${targetLang}: ${text}`,
+            content: text,
           },
-        ],
-
         ],
         temperature: 0.7,
       }),

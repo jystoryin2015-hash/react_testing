@@ -12,13 +12,13 @@ const LANGUAGES = [
 ];
 
 // Real translation function calling the Cloudflare Function API
-const translateWithAPI = async (text: string, targetLangName: string): Promise<string> => {
+const translateWithAPI = async (text: string, sourceLang: string, targetLang: string): Promise<string> => {
   const response = await fetch('/api/translate', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ text, targetLang: targetLangName }),
+    body: JSON.stringify({ text, sourceLang, targetLang }),
   });
 
   if (!response.ok) {
@@ -33,6 +33,7 @@ const translateWithAPI = async (text: string, targetLangName: string): Promise<s
 function App() {
   const [image, setImage] = useState<string | null>(null);
   const [description, setDescription] = useState('');
+  const [sourceLang, setSourceLang] = useState('ko');
   const [targetLang, setTargetLang] = useState('en');
   const [isTranslating, setIsTranslating] = useState(false);
   const [result, setResult] = useState<string | null>(null);
@@ -63,11 +64,12 @@ function App() {
     setIsTranslating(true);
     setResult(null);
 
-    // Get the full language name from the code
-    const selectedLang = LANGUAGES.find(l => l.code === targetLang)?.name || 'English';
+    // Get the full language name from the code for both source and target
+    const selectedSourceLangName = LANGUAGES.find(l => l.code === sourceLang)?.name || 'Korean';
+    const selectedTargetLangName = LANGUAGES.find(l => l.code === targetLang)?.name || 'English';
 
     try {
-      const translatedText = await translateWithAPI(description, selectedLang);
+      const translatedText = await translateWithAPI(description, selectedSourceLangName, selectedTargetLangName);
       setResult(translatedText);
     } catch (error: any) {
       console.error('Translation failed', error);
@@ -137,18 +139,34 @@ function App() {
             />
           </div>
 
-          <div className="input-group">
-            <label className="label">Translate to</label>
-            <select 
-              value={targetLang} 
-              onChange={(e) => setTargetLang(e.target.value)}
-            >
-              {LANGUAGES.map((lang) => (
-                <option key={lang.code} value={lang.code}>
-                  {lang.name}
-                </option>
-              ))}
-            </select>
+          <div className="language-selection-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+            <div className="input-group" style={{ marginBottom: 0 }}>
+              <label className="label">From</label>
+              <select 
+                value={sourceLang} 
+                onChange={(e) => setSourceLang(e.target.value)}
+              >
+                {LANGUAGES.map((lang) => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="input-group" style={{ marginBottom: 0 }}>
+              <label className="label">To</label>
+              <select 
+                value={targetLang} 
+                onChange={(e) => setTargetLang(e.target.value)}
+              >
+                {LANGUAGES.map((lang) => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <button 
